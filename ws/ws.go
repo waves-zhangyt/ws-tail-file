@@ -2,9 +2,9 @@ package ws
 
 import (
 	"github.com/gorilla/websocket"
+	"github.com/waves-zhangyt/ws-tail-file/tailfile"
 	"log"
 	"net/http"
-	"ws-tail-file/tailfile"
 )
 
 var upgrader = websocket.Upgrader{} // use default options

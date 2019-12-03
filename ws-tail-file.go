@@ -1,13 +1,13 @@
 package main
 
 import (
+	"github.com/waves-zhangyt/ws-tail-file/ws"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-	"ws-tail-file/ws"
 )
 
 func main() {
