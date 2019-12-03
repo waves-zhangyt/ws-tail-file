@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控日志</title>
+    <script src="jquery-3.3.1.min.js"></script>
+    <style>
+        .msg {
+            color : blue;
+        }
+        div {
+            margin: 0.5em;
+        }
+        input[type='button'] {
+            margin: 0.2em 0.2em 0.5em;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    选择监控的日志
+    <select id="logPath">
+        <option>logs/example.log</option>
+    </select>
+    <input id="open" type="button" value="开启监控">
+    <input id="close" type="button" value="关闭监控">
+    <input id="clear" type="button" value="清空日志显示">
+    <span class="msg" id="tailStatus"></span>
+    <span style="margin-left: 2em; color: orangered;" id="monitorStatus"></span>
+</div>
+
+<div>
+<textarea id="log" style="width: 98%; height: 50em;" readonly></textarea>
+</div>
+
+</body>
+
+<script>
+
+    var domain = "localhost"
+
+    var ws;
+    var currentLogFilePath = $("#logPath").val();
+    var open = false;
+
+    $("#logPath").change(function () {
+        currentLogFilePath = $("#logPath").val();
+
+        try { if (ws != null) ws.close(); } catch (e) { }
+
+        setTimeout(function () {
+            if (open == true) {
+                openTailFile();
+            }
+        }, 200);
+    });
+
+    $("#close").click(function () {
+        open = false;
+        if (ws) {
+            try { ws.close(); } catch (e) { }
+        }
+        $("#tailStatus").html("");
+    });
+
+    $("#open").click(function () {
+        open = true;
+        openTailFile();
+    });
+
+    $("#clear").click(function () {
+        $("#log").html("");
+    });
+
+    var openTailFile = function () {
+        if (currentLogFilePath == null || currentLogFilePath == "") {
+            alert("需要先指定日志路径");
+        }
+
+        ws = new WebSocket("ws://" + domain + ":7979/tailFile?filePath=" + currentLogFilePath);
+        ws.onopen = function(evt) {
+            console.log("OPEN");
+            $("#monitorStatus").html("监控已开启");
+        }
+        ws.onclose = function(evt) {
+            console.log("CLOSE");
+            ws = null;
+            $("#monitorStatus").html("监控已关闭");
+        }
+        ws.onmessage = function(evt) {
+            log.innerHTML = log.innerHTML + evt.data
+            if (log.innerHTML.length > 100000) {
+                log.innerHTML = log.innerHTML.substring(log.innerHTML.length - 100000)
+            }
+            log.scrollTop = log.scrollHeight;
+        }
+        ws.onerror = function(evt) {
+            console.log("ERROR: " + evt.data);
+            $("#monitorStatus").html($("#tailStatus").html() + " 错误：" + evt.data)
+        }
+
+        $("#tailStatus").html("当前监控：" + currentLogFilePath);
+    }
+</script>
+
+</html>
