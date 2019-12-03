@@ -14,15 +14,16 @@ type TailFile struct {
 	Over    bool
 }
 
-// param start 0: start at file head; other num: start at file end
-func NewTailFile(filePath string, end bool) *TailFile {
+func NewTailFile(filePath string, end, bottom bool) *TailFile {
 	var tf TailFile
 	tf.File = filePath
 	tf.LineBuf = strings.Builder{}
 
+	// tail from file head
 	if !end {
 		tf.Offset = 0
 	} else {
+		// tail from file end sub some lines
 		info, err := os.Stat(tf.File)
 		if err != nil {
 			log.Printf("get file size err: %v", err)
@@ -33,6 +34,11 @@ func NewTailFile(filePath string, end bool) *TailFile {
 			tf.Offset = 0
 		} else {
 			tf.findTheNextLineNew(info.Size(), 2000)
+		}
+
+		// tail from the read end bottom
+		if bottom {
+			tf.Offset = info.Size()
 		}
 	}
 

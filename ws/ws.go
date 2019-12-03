@@ -9,9 +9,13 @@ import (
 
 var upgrader = websocket.Upgrader{} // use default options
 
-func TailFile(w http.ResponseWriter, r *http.Request) {
+func ExampleTailFile(w http.ResponseWriter, r *http.Request) {
 	filePath := r.FormValue("filePath")
 
+	TailFile(filePath, false, w, r)
+}
+
+func TailFile(filePath string, fromBottom bool, w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
@@ -19,7 +23,7 @@ func TailFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	tf := tailfile.NewTailFile(filePath, true)
+	tf := tailfile.NewTailFile(filePath, true, false)
 	if tf == nil {
 		c.WriteMessage(websocket.TextMessage, []byte("file not exists"))
 		c.Close()

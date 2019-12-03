@@ -20,7 +20,7 @@ func main() {
 		),
 	)
 
-	http.HandleFunc("/tailFile", ws.TailFile)
+	http.HandleFunc("/tailFile", ws.ExampleTailFile)
 
 	log.Println("服务器启动， 监听 7979 端口。")
 	server := &http.Server{
