@@ -1,4 +1,4 @@
-module ws-tail-file
+module github.com/waves-zhangyt/ws-tail-file
 
 go 1.12
 
