@@ -136,7 +136,6 @@ func (c *CommandOutMonitor) StartMonitorOutput() {
 			line, err := c.Stdout.ReadString('\n')
 			if line != "" {
 				c.StdoutLines = append(c.StdoutLines, line)
-				line, err = c.Stdout.ReadString('\n')
 			}
 			if err != nil && err != io.EOF {
 				glog.Errorf("read monitor stdout err: %v", err)
@@ -149,7 +148,6 @@ func (c *CommandOutMonitor) StartMonitorOutput() {
 			line, err := c.Stderr.ReadString('\n')
 			if line != "" {
 				c.StderrLines = append(c.StderrLines, line)
-				line, err = c.Stderr.ReadString('\n')
 			}
 			if err != nil && err != io.EOF {
 				glog.Errorf("read monitor stdout err: %v", err)
