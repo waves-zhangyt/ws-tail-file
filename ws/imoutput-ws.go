@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
-	"github.com/waves-zhangyt/ws-tail-file/imoutput"
+	imlog "github.com/waves-zhangyt/ws-tail-file/imoutput"
 	"io"
 	"net/http"
 	"time"

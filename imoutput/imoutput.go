@@ -1,4 +1,4 @@
-package imlog
+package imoutput
 
 import (
 	"bytes"
