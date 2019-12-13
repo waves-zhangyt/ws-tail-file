@@ -162,7 +162,7 @@ func LocalCommandTimeout(cmd string, commandOutMonitor *CommandOutMonitor, timeo
 	ctxt, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer func() {
 		cancel()
-		time.Sleep(3 * time.Second)
+		time.Sleep(5 * time.Second)
 		commandOutMonitor.SetDone(true)
 	}()
 
@@ -170,7 +170,6 @@ func LocalCommandTimeout(cmd string, commandOutMonitor *CommandOutMonitor, timeo
 	command.Stdout = &(commandOutMonitor.Stdout)
 	command.Stderr = &(commandOutMonitor.Stderr)
 	if err := command.Run(); err != nil {
-		commandOutMonitor.SetDone(true)
 		if ctxt.Err() == context.DeadlineExceeded {
 			log.Printf("command timeout: %v\n", err)
 			return err
@@ -178,7 +177,6 @@ func LocalCommandTimeout(cmd string, commandOutMonitor *CommandOutMonitor, timeo
 		glog.Errorf("执行命令出错 %v", err)
 		return err
 	}
-	commandOutMonitor.SetDone(true)
 
 	return nil
 }
