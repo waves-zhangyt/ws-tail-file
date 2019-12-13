@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/waves-zhangyt/ws-tail-file/ws"
 	"log"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 
 func main() {
 
+	flag.Parse()
+
 	http.Handle(
 		"/html/",
 		http.StripPrefix(
@@ -21,6 +24,9 @@ func main() {
 	)
 
 	http.HandleFunc("/tailFile", ws.ExampleTailFile)
+
+	http.HandleFunc("/startCommand", ws.StartExampleCommand)
+	http.HandleFunc("/commandOutput", ws.ExampleCommandOutput)
 
 	log.Println("服务器启动， 监听 7979 端口。")
 	server := &http.Server{
