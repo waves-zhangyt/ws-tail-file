@@ -53,10 +53,11 @@ func (c *CommandOutMonitor) FetchOutputToChannel(ch chan string) {
 
 		i := 0
 		for !c.Done || i < len(c.StdoutLines) {
+			time.Sleep(200 * time.Millisecond)
+
 			if i >= len(c.StdoutLines) {
 				continue
 			}
-			time.Sleep(500 * time.Millisecond)
 			ch <- c.StdoutLines[i]
 			i++
 		}
@@ -66,10 +67,11 @@ func (c *CommandOutMonitor) FetchOutputToChannel(ch chan string) {
 	go func() {
 		i := 0
 		for !c.Done || i < len(c.StderrLines) {
+			time.Sleep(200 * time.Millisecond)
+
 			if i >= len(c.StderrLines) {
 				continue
 			}
-			time.Sleep(500 * time.Millisecond)
 			ch <- c.StdoutLines[i]
 			i++
 		}
@@ -81,10 +83,12 @@ func (c *CommandOutMonitor) FetchOutputToWriter(writer io.Writer) {
 	go func() {
 		i := 0
 		for !c.Done || i < len(c.StdoutLines) {
+			time.Sleep(200 * time.Millisecond)
+
 			if i >= len(c.StdoutLines) {
 				continue
 			}
-			time.Sleep(500 * time.Millisecond)
+
 			_, err := writer.Write([]byte(c.StdoutLines[i]))
 			if err != nil {
 				glog.Errorf("write stdout to target err: %v", err)
@@ -97,10 +101,12 @@ func (c *CommandOutMonitor) FetchOutputToWriter(writer io.Writer) {
 	go func() {
 		i := 0
 		for !c.Done || i < len(c.StderrLines) {
+			time.Sleep(200 * time.Millisecond)
+
 			if i >= len(c.StderrLines) {
 				continue
 			}
-			time.Sleep(500 * time.Millisecond)
+
 			_, err := writer.Write([]byte(c.StderrLines[i]))
 			if err != nil {
 				glog.Errorf("write stderr to target err: %v", err)
@@ -126,9 +132,9 @@ func (c *CommandOutMonitor) SetDone(done bool) {
 func (c *CommandOutMonitor) StartMonitorOutput() {
 	go func() {
 		for !c.IsDone() {
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(20 * time.Millisecond)
 			line, err := c.Stdout.ReadString('\n')
-			for (err == nil || err == io.EOF) && line != "" {
+			if line != "" {
 				c.StdoutLines = append(c.StdoutLines, line)
 				line, err = c.Stdout.ReadString('\n')
 			}
@@ -139,9 +145,9 @@ func (c *CommandOutMonitor) StartMonitorOutput() {
 	}()
 	go func() {
 		for !c.IsDone() {
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(20 * time.Millisecond)
 			line, err := c.Stderr.ReadString('\n')
-			for (err == nil || err == io.EOF) && line != "" {
+			if line != "" {
 				c.StderrLines = append(c.StderrLines, line)
 				line, err = c.Stderr.ReadString('\n')
 			}
@@ -164,6 +170,7 @@ func LocalCommandTimeout(cmd string, commandOutMonitor *CommandOutMonitor, timeo
 	command.Stdout = &(commandOutMonitor.Stdout)
 	command.Stderr = &(commandOutMonitor.Stderr)
 	if err := command.Run(); err != nil {
+		commandOutMonitor.SetDone(true)
 		if ctxt.Err() == context.DeadlineExceeded {
 			log.Printf("command timeout: %v\n", err)
 			return err
@@ -171,7 +178,7 @@ func LocalCommandTimeout(cmd string, commandOutMonitor *CommandOutMonitor, timeo
 		glog.Errorf("执行命令出错 %v", err)
 		return err
 	}
+	commandOutMonitor.SetDone(true)
 
-	//return string(stdout.Bytes()), string(stderr.Bytes()), nil
 	return nil
 }
